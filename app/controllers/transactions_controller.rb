@@ -1,11 +1,15 @@
 class TransactionsController < ApplicationController
+  before_action :authenticate_user! 
   before_action :set_transaction, only: %i[show edit update destroy]
 
   # GET /transactions
   def index
-    @transactions = current_user.transactions.all  # Fetch all transactions for the logged-in user
+    if current_user
+	@transactions = current_user.transactions.all
+	else
+	redirect_to new_user_session_path, alert: 'You need to sign in.'
   end
-
+end
   # POST /transactions or /transactions.json
   def create
     # Associate the new transaction with the currently logged-in user

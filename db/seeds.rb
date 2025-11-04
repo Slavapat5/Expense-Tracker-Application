@@ -12,42 +12,51 @@
 # db/seeds.rb
 
 # First, clear existing data (optional, useful for development)
-Transaction.destroy_all
-Category.destroy_all
-User.destroy_all
+# db/seeds.rb
 
-puts "Creating users..."
-user1 = User.create!(email: "alice@example.com", password: "password123")
-user2 = User.create!(email: "bob@example.com", password: "password123")
+# --- Users ---
+users = [
+  { email: "test1@example.com", password: "password", password_confirmation: "password" },
+  { email: "test2@example.com", password: "password", password_confirmation: "password" }
+]
 
-puts "Creating categories..."
-food = Category.create!(name: "Food", user: user1)
-salary = Category.create!(name: "Salary", user: user1)
-entertainment = Category.create!(name: "Entertainment", user: user2)
+users.each do |u|
+  User.find_or_create_by!(email: u[:email]) do |user|
+    user.password = u[:password]
+    user.password_confirmation = u[:password_confirmation]
+  end
+end
 
-puts "Creating transactions..."
-Transaction.create!(
-  amount: 25.50,
-  transaction_type: "expense",
-  occurred_on: Date.today - 3,
-  category: food,
-  user: user1
-)
+puts "Users created!"
 
-Transaction.create!(
-  amount: 1500.00,
-  transaction_type: "income",
-  occurred_on: Date.today - 10,
-  category: salary,
-  user: user1
-)
+# --- Categories ---
+categories = ["Food", "Transport", "Entertainment", "Salary", "Other"]
 
-Transaction.create!(
-  amount: 40.00,
-  transaction_type: "expense",
-  occurred_on: Date.today - 1,
-  category: entertainment,
-  user: user2
-)
+categories.each do |cat|
+  Category.find_or_create_by!(name: cat)
+end
 
-puts "Seeding done!"
+puts "Categories created!"
+
+# --- Transactions (safe check) ---
+if Transaction.column_names.include?("transaction_type")
+  # Only run if transaction_type column exists
+  Transaction.find_or_create_by!(
+    user: User.first,
+    category: Category.first,
+    transaction_type: :income,
+    amount: 100.0,
+    occurred_on: Date.today
+  )
+  Transaction.find_or_create_by!(
+    user: User.last,
+    category: Category.second,
+    transaction_type: :expense,
+    amount: 50.0,
+    occurred_on: Date.today
+  )
+
+  puts "Sample transactions created!"
+else
+  puts "Skipping transactions: transaction_type column not found yet."
+end

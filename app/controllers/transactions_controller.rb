@@ -1,65 +1,62 @@
 class TransactionsController < ApplicationController
-  before_action :authenticate_user! 
+  before_action :authenticate_user!
   before_action :set_transaction, only: %i[show edit update destroy]
 
   # GET /transactions
   def index
-    if current_user
-	@transactions = current_user.transactions.all
-	else
-	redirect_to new_user_session_path, alert: 'You need to sign in.'
+    @transactions = current_user.transactions.includes(:category).order(occurred_on: :desc)
   end
-end
+
+  # GET /transactions/1
+  def show
+  end
+
+  # GET /transactions/new
+  def new
+    @transaction = current_user.transactions.new
+  end
+
+  # GET /transactions/1/edit
+  def edit
+  end
+
   # POST /transactions or /transactions.json
   def create
-    # Associate the new transaction with the currently logged-in user
     @transaction = current_user.transactions.new(transaction_params)
 
-    respond_to do |format|
-      if @transaction.save
-        format.html { redirect_to @transaction, notice: "Transaction was successfully created." }
-        format.json { render :show, status: :created, location: @transaction }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @transaction.errors, status: :unprocessable_entity }
-      end
+    if @transaction.save
+      redirect_to @transaction, notice: "Transaction was successfully created."
+    else
+      render :new
     end
   end
 
   # PATCH/PUT /transactions/1 or /transactions/1.json
   def update
-    respond_to do |format|
-      if @transaction.update(transaction_params)
-        format.html { redirect_to @transaction, notice: "Transaction was successfully updated.", status: :see_other }
-        format.json { render :show, status: :ok, location: @transaction }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @transaction.errors, status: :unprocessable_entity }
-      end
+    if @transaction.update(transaction_params)
+      redirect_to @transaction, notice: "Transaction updated."
+    else
+      render :edit
     end
   end
 
   # DELETE /transactions/1 or /transactions/1.json
   def destroy
-    @transaction.destroy  # Changed from @transaction.destroy! to @transaction.destroy
-
-    respond_to do |format|
-      format.html { redirect_to transactions_path, notice: "Transaction was successfully destroyed.", status: :see_other }
-      format.json { head :no_content }
-    end
+    @transaction.destroy
+    redirect_to transactions_path, notice: "Transaction deleted."
   end
 
   private
 
-    # Use callbacks to share common setup or constraints between actions.
+    # Only load transactions belonging to current_user
     def set_transaction
-      @transaction = Transaction.find(params[:id])
+      @transaction = current_user.transactions.find(params[:id])
+    rescue ActiveRecord::RecordNotFound
+      redirect_to transactions_path, alert: "Not authorized to view that transaction."
     end
 
-    # Only allow a list of trusted parameters through.
     def transaction_params
-      params.require(:transaction).permit(:occurred_on, :amount, :note, :category_id)
+      params.require(:transaction).permit(:occurred_on, :amount, :note, :category_id, :transaction_type)
     end
 end
-
 

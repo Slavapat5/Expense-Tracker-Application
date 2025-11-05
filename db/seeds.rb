@@ -14,8 +14,12 @@
 # First, clear existing data (optional, useful for development)
 # db/seeds.rb
 
-# --- Users ---
-user = User.create!(email: "test@example.com", password: "password")
+# --- Users ---user = User.create!(email: "test@example.com", password: "password")
+user = User.find_or_create_by!(email: "test@example.com") do |u|
+  u.password = "password123"
+  u.password_confirmation = "password123"
+end
+
 
 # Create categories
 food = Category.create!(name: "Food", user: user)

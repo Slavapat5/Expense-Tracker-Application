@@ -15,48 +15,25 @@
 # db/seeds.rb
 
 # --- Users ---
-users = [
-  { email: "test1@example.com", password: "password", password_confirmation: "password" },
-  { email: "test2@example.com", password: "password", password_confirmation: "password" }
-]
+user = User.create!(email: "test@example.com", password: "password")
 
-users.each do |u|
-  User.find_or_create_by!(email: u[:email]) do |user|
-    user.password = u[:password]
-    user.password_confirmation = u[:password_confirmation]
-  end
-end
+# Create categories
+food = Category.create!(name: "Food", user: user)
+salary = Category.create!(name: "Salary", user: user)
 
-puts "Users created!"
+# Create transactions
+Transaction.create!(
+  amount: 50,
+  occurred_on: Date.today - 2,
+  transaction_type: :expense,
+  user: user,
+  category: food
+)
 
-# --- Categories ---
-categories = ["Food", "Transport", "Entertainment", "Salary", "Other"]
-
-categories.each do |cat|
-  Category.find_or_create_by!(name: cat)
-end
-
-puts "Categories created!"
-
-# --- Transactions (safe check) ---
-if Transaction.column_names.include?("transaction_type")
-  # Only run if transaction_type column exists
-  Transaction.find_or_create_by!(
-    user: User.first,
-    category: Category.first,
-    transaction_type: :income,
-    amount: 100.0,
-    occurred_on: Date.today
-  )
-  Transaction.find_or_create_by!(
-    user: User.last,
-    category: Category.second,
-    transaction_type: :expense,
-    amount: 50.0,
-    occurred_on: Date.today
-  )
-
-  puts "Sample transactions created!"
-else
-  puts "Skipping transactions: transaction_type column not found yet."
-end
+Transaction.create!(
+  amount: 1000,
+  occurred_on: Date.today - 1,
+  transaction_type: :income,
+  user: user,
+  category: salary
+)

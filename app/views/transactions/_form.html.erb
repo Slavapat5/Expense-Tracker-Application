@@ -2,7 +2,6 @@
   <% if transaction.errors.any? %>
     <div style="color: red">
       <h2><%= pluralize(transaction.errors.count, "error") %> prohibited this transaction from being saved:</h2>
-
       <ul>
         <% transaction.errors.each do |error| %>
           <li><%= error.full_message %></li>
@@ -18,25 +17,21 @@
 
   <div>
     <%= form.label :amount, style: "display: block" %>
-    <%= form.text_field :amount %>
+    <%= form.number_field :amount, step: "0.01" %>
   </div>
 
   <div>
     <%= form.label :note, style: "display: block" %>
-    <%= form.textarea :note %>
+    <%= form.text_area :note %>
   </div>
 
   <div>
-    <%= form.label :category_id, style: "display: block" %>
-    <%= form.text_field :category_id %>
-  </div>
-
-  <div>
-    <%= form.label :user_id, style: "display: block" %>
-    <%= form.text_field :user_id %>
+    <%= form.label :category_id, "Category", style: "display: block" %>
+    <%= form.collection_select :category_id, current_user.categories, :id, :name, prompt: "Select a category" %>
   </div>
 
   <div>
     <%= form.submit %>
   </div>
 <% end %>
+

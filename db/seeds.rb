@@ -15,29 +15,49 @@
 # db/seeds.rb
 
 # --- Users ---user = User.create!(email: "test@example.com", password: "password")
-user = User.find_or_create_by!(email: "test@example.com") do |u|
-  u.password = "password123"
-  u.password_confirmation = "password123"
-end
+# Clear existing data in correct order (transactions first to avoid foreign key errors)
+# Clear data in the correct order
+Transaction.delete_all
+Category.delete_all
+User.delete_all
 
+puts "Creating test user..."
 
-# Create categories
+user = User.create!(
+  email: "test@example.com",
+  password: "password123",
+  password_confirmation: "password123"
+)
+
+puts "Creating categories..."
 food = Category.create!(name: "Food", user: user)
-salary = Category.create!(name: "Salary", user: user)
+rent = Category.create!(name: "Rent", user: user)
+fun = Category.create!(name: "Fun", user: user)
 
-# Create transactions
-Transaction.create!(
-  amount: 50,
-  occurred_on: Date.today - 2,
-  transaction_type: :expense,
-  user: user,
-  category: food
-)
+puts "Creating transactions..."
+Transaction.create!([
+  {
+    occurred_on: Date.today,
+    amount: 20.50,
+    note: "Lunch",
+    category: food,
+    user: user
+  },
+  {
+    occurred_on: Date.today - 1,
+    amount: 800,
+    note: "Monthly rent",
+    category: rent,
+    user: user
+  },
+  {
+    occurred_on: Date.today - 2,
+    amount: 15.00,
+    note: "Cinema",
+    category: fun,
+    user: user
+  }
+])
 
-Transaction.create!(
-  amount: 1000,
-  occurred_on: Date.today - 1,
-  transaction_type: :income,
-  user: user,
-  category: salary
-)
+puts "✅ Seeding completed successfully!"
+

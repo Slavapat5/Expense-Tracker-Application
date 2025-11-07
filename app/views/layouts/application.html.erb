@@ -3,29 +3,61 @@
   <head>
     <title><%= content_for(:title) || "Expense Tracker" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
+
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+
     <%= yield :head %>
 
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
     <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
-
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
-    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
   </head>
 
   <body>
-    <%= yield %>
-<p class="notice"><%= notice %></p>
-<p class="alert"><%= alert %></p>
+    <nav class="navbar">
+      <div class="nav-left">
+        <%= link_to "Home", root_path, class: "nav-link" %>
+        <%= link_to "New Transaction", new_transaction_path, class: "nav-link" %>
+        <%= link_to "My Categories", categories_path, class: "nav-link" %>
+
+        <% if user_signed_in? %>
+          <div class="dropdown">
+            <button class="dropbtn">Categories ▼</button>
+            <div class="dropdown-content">
+              <% current_user.categories.each do |category| %>
+                <%= link_to category.name, new_transaction_path(category_id: category.id), class: "nav-link" %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="nav-right">
+        <% if user_signed_in? %>
+          <span>Logged in as <%= current_user.email %></span>
+          <%= link_to "Logout", destroy_user_session_path, method: :delete, class: "nav-link" %>
+        <% else %>
+          <%= link_to "Login", new_user_session_path, class: "nav-link" %>
+          <%= link_to "Sign Up", new_user_registration_path, class: "nav-link" %>
+        <% end %>
+      </div>
+    </nav>
+
+    <% if notice.present? %>
+      <p class="notice"><%= notice %></p>
+    <% end %>
+
+    <% if alert.present? %>
+      <p class="alert"><%= alert %></p>
+    <% end %>
+
+    <main>
+      <%= yield %>
+    </main>
 
   </body>
 </html>
+

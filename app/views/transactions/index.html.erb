@@ -1,17 +1,71 @@
-<p style="color: green"><%= notice %></p>
-
 <% content_for :title, "Transactions" %>
 
 <h1>Transactions</h1>
 
-<div id="transactions">
-  <% @transactions.each do |transaction| %>
-    <%= render transaction %>
-    <p>
-      <%= link_to "Show this transaction", transaction %>
-    </p>
-  <% end %>
+<%= link_to "New Transaction", new_transaction_path, class: "btn btn-primary" %>
 
+
+
+<div class="filters">
+  <%= form_with url: transactions_path, method: :get, local: true do |form| %>
+
+    <!-- Category Filter -->
+    <%= form.label :category_id, "Category" %>
+    <%= form.collection_select :category_id, @categories, :id, :name,
+        include_blank: "All" %>
+
+    <!-- Date filter -->
+    <%= form.label :start_date, "From" %>
+    <%= form.date_field :start_date %>
+
+    <%= form.label :end_date, "To" %>
+    <%= form.date_field :end_date %>
+
+    <!-- Sorting -->
+    <%= form.label :sort, "Sort by" %>
+    <%= form.select :sort, [
+        ["Newest first", nil],
+        ["Oldest first", "oldest"],
+        ["Amount low → high", "amount_asc"],
+        ["Amount high → low", "amount_desc"]
+      ] %>
+
+    <%= form.submit "Apply Filters" %>
+  <% end %>
 </div>
 
-<%= link_to "New transaction", new_transaction_path %>
+<br/>
+
+
+
+
+<table border="1" cellpadding="5" cellspacing="0">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Amount</th>
+      <th>Category</th>
+      <th>Note</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @transactions.each do |transaction| %>
+      <tr>
+        <td><%= transaction.occurred_on %></td>
+        <td><%= number_to_currency(transaction.amount) %></td>
+        <td><%= transaction.category.name %></td>
+        <td><%= transaction.note %></td>
+        <td>
+          <%= link_to "Edit", edit_transaction_path(transaction) %> |
+          <%= link_to "Delete",
+                      transaction,
+                      method: :delete,
+                      data: { confirm: "Are you sure you want to delete this transaction?" } %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+

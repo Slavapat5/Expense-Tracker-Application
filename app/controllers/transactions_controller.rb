@@ -4,8 +4,37 @@ class TransactionsController < ApplicationController
 
   # GET /transactions
   def index
-    @transactions = current_user.transactions.includes(:category).order(occurred_on: :desc)
+  @categories = current_user.categories
+  @transactions = current_user.transactions.includes(:category)
+
+  # Filter by category
+  if params[:category_id].present?
+    @transactions = @transactions.where(category_id: params[:category_id])
   end
+
+  # Date range filter (fix to occurred_on)
+  if params[:start_date].present?
+    @transactions = @transactions.where("occurred_on >= ?", params[:start_date])
+  end
+
+  if params[:end_date].present?
+    @transactions = @transactions.where("occurred_on <= ?", params[:end_date])
+  end
+
+  # Sorting (fix column name)
+  case params[:sort]
+  when "amount_asc"
+    @transactions = @transactions.order(amount: :asc)
+  when "amount_desc"
+    @transactions = @transactions.order(amount: :desc)
+  when "oldest"
+    @transactions = @transactions.order(occurred_on: :asc)
+  else
+    @transactions = @transactions.order(occurred_on: :desc) # default newest first
+  end
+end
+
+
 
   # GET /transactions/1
   def show

@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get "dashboard/index"
+  get "dashboard", to: "dashboard#index"
   resources :transactions
   resources :categories
   devise_for :users

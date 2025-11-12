@@ -18,6 +18,27 @@
 </div>
 
 
+
+<!-- Monthly Spending Chart -->
+<div class="card shadow-sm border-0 mb-5">
+  <div class="card-body">
+    <h5 class="card-title mb-4">Monthly Spending</h5>
+    <div style="width: 100%; height: 350px;">
+      <canvas id="monthlySpendingChart"></canvas>
+    </div>
+  </div>
+</div>
+
+
+<hr>
+
+<h3>Insights</h3>
+<div class="card p-3 mb-4">
+  <p><%= @insight_message %></p>
+</div>
+
+
+
 <h3>Recent Transactions</h3>
 <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">
   <thead>
@@ -62,4 +83,37 @@
       }
     }
   });
+
+  const monthlyCtx = document.getElementById('monthlySpendingChart');
+  new Chart(monthlyCtx, {
+    type: 'line',
+    data: {
+      labels: <%= raw @months.to_json %>,
+      datasets: [{
+        label: 'Spending (€)',
+        data: <%= raw @monthly_totals.to_json %>,
+        fill: true,
+        borderColor: '#007bff',
+        backgroundColor: 'rgba(0, 123, 255, 0.2)',
+        tension: 0.3,
+        pointRadius: 5,
+        pointHoverRadius: 8
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: { display: true, text: 'Amount (€)' }
+        },
+        x: {
+          title: { display: true, text: 'Month' }
+        }
+      }
+    }
+  });
+
 </script>

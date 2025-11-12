@@ -2,36 +2,37 @@ class TransactionsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_transaction, only: %i[show edit update destroy]
 
-  # GET /transactions
-  def index
+def index
   @categories = current_user.categories
   @transactions = current_user.transactions.includes(:category)
 
-  # Filter by category
+  # Filtering
   if params[:category_id].present?
     @transactions = @transactions.where(category_id: params[:category_id])
   end
 
-  # Date range filter (fix to occurred_on)
   if params[:start_date].present?
-    @transactions = @transactions.where("occurred_on >= ?", params[:start_date])
+    @transactions = @transactions.where("date >= ?", params[:start_date])
   end
 
   if params[:end_date].present?
-    @transactions = @transactions.where("occurred_on <= ?", params[:end_date])
+    @transactions = @transactions.where("date <= ?", params[:end_date])
   end
 
-  # Sorting (fix column name)
-  case params[:sort]
-  when "amount_asc"
-    @transactions = @transactions.order(amount: :asc)
-  when "amount_desc"
-    @transactions = @transactions.order(amount: :desc)
-  when "oldest"
-    @transactions = @transactions.order(occurred_on: :asc)
-  else
-    @transactions = @transactions.order(occurred_on: :desc) # default newest first
-  end
+  # Sorting
+case params[:sort]
+when "amount_asc"
+  @transactions = @transactions.order(amount: :asc)
+when "amount_desc"
+  @transactions = @transactions.order(amount: :desc)
+when "oldest"
+  @transactions = @transactions.order(occurred_on: :asc)
+else
+  @transactions = @transactions.order(occurred_on: :desc)
+end
+
+  # 🧭 Pagination — show 10 per page
+  @transactions = @transactions.page(params[:page]).per(10)
 end
 
 

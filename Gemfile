@@ -66,3 +66,5 @@ gem "devise", "~> 4.9"
 
 
 gem "kaminari", "~> 1.2"
+
+gem "rspec-rails", "~> 8.0", groups: [:development, :test]

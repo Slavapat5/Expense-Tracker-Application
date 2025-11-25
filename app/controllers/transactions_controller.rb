@@ -4,34 +4,37 @@ class TransactionsController < ApplicationController
 
 def index
   @categories = current_user.categories
+
   @transactions = current_user.transactions.includes(:category)
 
-  # Filtering
+  # 🔍 Filter by category
   if params[:category_id].present?
     @transactions = @transactions.where(category_id: params[:category_id])
   end
 
+  # 📅 Filter by date range (using occurred_on, NOT date)
   if params[:start_date].present?
-    @transactions = @transactions.where("date >= ?", params[:start_date])
+    @transactions = @transactions.where("occurred_on >= ?", params[:start_date])
   end
 
   if params[:end_date].present?
-    @transactions = @transactions.where("date <= ?", params[:end_date])
+    @transactions = @transactions.where("occurred_on <= ?", params[:end_date])
   end
 
-  # Sorting
-case params[:sort]
-when "amount_asc"
-  @transactions = @transactions.order(amount: :asc)
-when "amount_desc"
-  @transactions = @transactions.order(amount: :desc)
-when "oldest"
-  @transactions = @transactions.order(occurred_on: :asc)
-else
-  @transactions = @transactions.order(occurred_on: :desc)
-end
+  # ↕️ Sorting
+  case params[:sort]
+  when "amount_asc"
+    @transactions = @transactions.order(amount: :asc)
+  when "amount_desc"
+    @transactions = @transactions.order(amount: :desc)
+  when "oldest"
+    @transactions = @transactions.order(occurred_on: :asc)
+  else
+    # default: newest first
+    @transactions = @transactions.order(occurred_on: :desc)
+  end
 
-  # 🧭 Pagination — show 10 per page
+  # 📄 Pagination (Kaminari/WillPaginate)
   @transactions = @transactions.page(params[:page]).per(10)
 end
 
@@ -41,10 +44,15 @@ end
   def show
   end
 
-  # GET /transactions/new
-  def new
-    @transaction = current_user.transactions.new
+def new
+  @transaction = current_user.transactions.new
+
+  # If a category_id was passed (from Quick Add), preselect it
+  if params[:category_id].present? && current_user.categories.exists?(params[:category_id])
+    @transaction.category_id = params[:category_id]
   end
+end
+
 
   # GET /transactions/1/edit
   def edit

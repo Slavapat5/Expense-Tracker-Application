@@ -1,26 +1,53 @@
-<h1>My Categories</h1>
+<% content_for :title, "My Categories" %>
 
-<%= link_to "New Category", new_category_path, class: "btn" %>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="mb-0">My Categories</h1>
+  <%= link_to "New Category", new_category_path, class: "btn btn-primary" %>
+</div>
 
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th></th>
-    </tr>
-  </thead>
+<% if @categories.empty? %>
 
-  <tbody>
-    <% @categories.each do |category| %>
-      <tr>
-        <td><%= category.name %></td>
-        <td>
-          <%= link_to "Edit", edit_category_path(category) %> |
-          <%= link_to "Delete", category_path(category),
-              method: :delete,
-              data: { confirm: "Are you sure?" } %>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+  <div class="alert alert-info text-center p-4 shadow-sm">
+    <h5>No categories found</h5>
+    <p class="mb-2">Start by creating your first category.</p>
+    <%= link_to "Add Category", new_category_path, class: "btn btn-primary" %>
+  </div>
+
+<% else %>
+
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Name</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% @categories.each do |category| %>
+            <tr>
+              <td class="fw-medium"><%= category.name %></td>
+
+              <td class="text-end">
+                <%= link_to edit_category_path(category),
+                            class: "btn btn-sm btn-outline-secondary me-2" do %>
+                  Edit
+                <% end %>
+
+                <%= link_to category_path(category),
+                            method: :delete,
+                            data: { confirm: "Delete this category? All linked transactions will remain but lose the category." },
+                            class: "btn btn-sm btn-outline-danger" do %>
+                  Delete
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+<% end %>

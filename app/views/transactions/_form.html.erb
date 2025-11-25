@@ -1,37 +1,58 @@
-<%= form_with(model: transaction) do |form| %>
-  <% if transaction.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(transaction.errors.count, "error") %> prohibited this transaction from being saved:</h2>
-      <ul>
-        <% transaction.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+<div class="card shadow-sm">
+  <div class="card-body">
 
-  <div>
-    <%= form.label :occurred_on, style: "display: block" %>
-    <%= form.date_field :occurred_on %>
+    <%= form_with(model: transaction, class: "row g-3") do |form| %>
+
+      <% if transaction.errors.any? %>
+        <div class="alert alert-danger">
+          <h5><%= pluralize(transaction.errors.count, "error") %> prevented this transaction from being saved:</h5>
+          <ul class="mb-0">
+            <% transaction.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <!-- Date -->
+      <div class="col-md-4">
+        <%= form.label :occurred_on, "Date", class: "form-label" %>
+        <%= form.date_field :occurred_on, class: "form-control", required: true %>
+      </div>
+
+      <!-- Amount -->
+      <div class="col-md-4">
+        <%= form.label :amount, "Amount (€)", class: "form-label" %>
+        <%= form.number_field :amount, step: "0.01", class: "form-control", required: true %>
+      </div>
+
+      <!-- Category -->
+      <div class="col-md-4">
+        <%= form.label :category_id, "Category", class: "form-label" %>
+        <%= form.collection_select :category_id,
+                                   current_user.categories,
+                                   :id,
+                                   :name,
+                                   { prompt: "Select Category" },
+                                   class: "form-select",
+                                   required: true %>
+      </div>
+
+      <!-- Note -->
+      <div class="col-12">
+        <%= form.label :note, "Note", class: "form-label" %>
+        <%= form.text_area :note, class: "form-control", rows: 3 %>
+      </div>
+
+      <!-- Buttons -->
+      <div class="col-12 d-flex justify-content-between mt-3">
+        <%= link_to "Back", transactions_path, class: "btn btn-outline-secondary" %>
+
+        <%= form.submit (transaction.persisted? ? "Update Transaction" : "Create Transaction"),
+                        class: "btn btn-primary" %>
+      </div>
+
+    <% end %>
+
   </div>
-
-  <div>
-    <%= form.label :amount, style: "display: block" %>
-    <%= form.number_field :amount, step: "0.01" %>
-  </div>
-
-  <div>
-    <%= form.label :note, style: "display: block" %>
-    <%= form.text_area :note %>
-  </div>
-
-  <div>
-    <%= form.label :category_id, "Category", style: "display: block" %>
-    <%= form.collection_select :category_id, current_user.categories, :id, :name, prompt: "Select a category" %>
-  </div>
-
-  <div>
-    <%= form.submit %>
-  </div>
-<% end %>
-
+</div>

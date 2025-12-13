@@ -31,17 +31,18 @@
               <td class="fw-medium"><%= category.name %></td>
 
               <td class="text-end">
-                <%= link_to edit_category_path(category),
-                            class: "btn btn-sm btn-outline-secondary me-2" do %>
-                  Edit
-                <% end %>
+                <%= link_to "Edit",
+                            edit_category_path(category),
+                            class: "btn btn-sm btn-outline-secondary me-2" %>
 
-                <%= link_to category_path(category),
-                            method: :delete,
-                            data: { confirm: "Delete this category? All linked transactions will remain but lose the category." },
-                            class: "btn btn-sm btn-outline-danger" do %>
-                  Delete
-                <% end %>
+                <%= button_to "Delete",
+                              category_path(category),
+                              method: :delete,
+                              form: {
+                                data: { turbo_confirm: "Are you sure you want to delete this category?" },
+                                class: "d-inline"
+                              },
+                              class: "btn btn-sm btn-outline-danger" %>
               </td>
             </tr>
           <% end %>

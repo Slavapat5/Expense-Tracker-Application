@@ -1,5 +1,6 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require 'spec_helper'
+require "capybara/rspec"
 ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
 # Prevent database truncation if the environment is production
@@ -74,6 +75,12 @@ RSpec.configure do |config|
 config.before :suite do
   Warden.test_mode!
 end
+
+
+  config.before(type: :system) do
+    driven_by :rack_test
+  end
+
 config.after :suite do
   Warden.test_reset!
 end

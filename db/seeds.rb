@@ -59,5 +59,5 @@ Transaction.create!([
   }
 ])
 
-puts "✅ Seeding completed successfully!"
+puts "Seeding completed successfully!"
 

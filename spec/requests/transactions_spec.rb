@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe "Transactions", type: :request do
   let(:user) { User.create!(email: "test@example.com", password: "password123") }
 
-  # Log the user in via Devise (same trick we used before)
+  # Log the user in using Devise
   before do
     post user_session_path, params: {
       user: {

@@ -7,12 +7,12 @@ def index
 
   @transactions = current_user.transactions.includes(:category)
 
-  # 🔍 Filter by category
+  # Filter by category
   if params[:category_id].present?
     @transactions = @transactions.where(category_id: params[:category_id])
   end
 
-  # 📅 Filter by date range (using occurred_on, NOT date)
+  #  Filter by date range (using occurred_on, NOT date)
   if params[:start_date].present?
     @transactions = @transactions.where("occurred_on >= ?", params[:start_date])
   end
@@ -34,7 +34,7 @@ def index
     @transactions = @transactions.order(occurred_on: :desc)
   end
 
-  # 📄 Pagination (Kaminari/WillPaginate)
+  #  Pagination (Kaminari/WillPaginate)
   @transactions = @transactions.page(params[:page]).per(10)
 end
 
